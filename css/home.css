@@ -1,0 +1,8 @@
+#restaurants {
+    display: inline-block;
+}
+
+#restaurants img {
+    padding: 1rem;
+    width: 40%;
+}
