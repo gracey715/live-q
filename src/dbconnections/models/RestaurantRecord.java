@@ -1,7 +1,9 @@
+import models.Customer;
+
 public class RestaurantRecord {
 
 	private String name;
-	private int customerId;
+	private Customer customer;
 	private int partySize;
 
 	public RestaurantRecord() {
@@ -15,14 +17,14 @@ public class RestaurantRecord {
 		return name;
 	}
 
-	public void setCustomerId(int customerId) {
-		this.customerId = customerId;
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
 	}
 
-	public int getCustomerId() {
-		return customerId;
+	public Customer getCustomer() {
+		return customer;
 	}
-	
+
 	public void setPartySize(int partySize) {
 		this.partySize = partySize;
 	}
