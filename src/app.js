@@ -48,4 +48,22 @@ app.get('/status/:event_id', (req, res) => {
     });
 });
 
+app.get('/restaurant_login', (req, res) => {
+    res.render("restaurant_login.hbs", {
+        "stylesheet": "restaurant_login"
+    })
+})
+
+app.post('/restaurant_login', (req, res) => {
+    const restaurantID = req.body.restaurant_id;
+    res.redirect(`/dashboard/${restaurantID}`);
+});
+
+app.get("/dashboard/:restaurant_id", (req, res) => {
+    const restaurantID = req.params.restaurant_id;
+    res.render("dashboard.hbs", {
+        "stylesheet": "dashboard"
+    });
+})
+
 app.listen(process.env.PORT || 3000);
