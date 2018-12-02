@@ -17,13 +17,15 @@ app.use(session({
 
 app.get("/", (req, res) => {
     res.render("home.hbs", {
-        "stylesheet": "home"
+        "stylesheet": "home",
+        "pageName": "Home"
     });
 });
 
 app.get('/check-in/:restaurant_id', (req, res) => {
     res.render("check-in.hbs", {
-        "stylesheet": "check-in"
+        "stylesheet": "check-in",
+        "pageName": "Check-In"
     });
 });
 
@@ -46,6 +48,7 @@ app.get('/status/:event_id', (req, res) => {
     const estimatedWaitTime = 10; //placeholder
     res.render("status.hbs", {
         "stylesheet": "status",
+        "pageName": "Status",
         "current_position": currentPosition,
         "estimated_wait_time": estimatedWaitTime
     });
@@ -53,7 +56,8 @@ app.get('/status/:event_id', (req, res) => {
 
 app.get('/restaurant_login', (req, res) => {
     res.render("restaurant_login.hbs", {
-        "stylesheet": "restaurant_login"
+        "stylesheet": "restaurant_login",
+        "pageName": "Restaurant Login"
     })
 })
 
@@ -72,6 +76,7 @@ app.get("/dashboard/:restaurant_id", (req, res) => {
 
     res.render("dashboard.hbs", {
         "stylesheet": "dashboard",
+        "pageName": "Dashboard",
         "queue": queue
     });
 })
