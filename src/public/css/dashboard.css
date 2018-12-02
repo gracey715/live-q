@@ -1,0 +1,37 @@
+table {
+    border-collapse: collapse;
+    width: 43rem;
+}
+
+table, th, td {
+    border: 2px solid black;
+}
+
+thead {
+    background-color: silver;
+}
+
+td {
+    padding: .25rem;
+}
+
+#position {
+    width: 2rem;
+}
+
+#party_size {
+    width: 6rem;
+}
+
+#actions {
+    width: 10rem;
+}
+
+form {
+    display: inline;
+}
+
+input[type="submit"] {
+    font-size: 5rem;
+    /* margin: .3rem; */
+}
