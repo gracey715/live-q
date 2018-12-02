@@ -2,20 +2,18 @@
 <html>
   <head>
     <link rel="stylesheet" type="text/css" href="../css/base.css">
-    <link rel="stylesheet" type="text/css" href="../css/status.css">
+    <link rel="stylesheet" type="text/css" href="../css/{{stylesheet}}.css">
     <link href="https://fonts.googleapis.com/css?family=Righteous" rel="stylesheet">
     <meta charset="UTF-8">
-    <title>LiveQ – Status</title>
+    <link rel="icon" type="image/png" href="../img/logo.png">
+    <title>LiveQ – Home</title>
   </head>
   <body>
     <div id="header_bar">
         <h1>LiveQ</h1>
     </div>
     <div id="page_body">
-        <p>You are currently in reservation position...</p>
-        <h1 id="curPos">1</h1>
-        <p>Estimated wait time:</p>
-        <div id="waitTime"><p><div id="estimatedWait">x</div> minutes</p></div>
+        {{{body}}}
     </div>
   </body>
 </html>
