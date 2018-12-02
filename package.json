@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/live-q/live-q/issues"
   },
-  "homepage": "https://github.com/live-q/live-q#readme"
+  "homepage": "https://github.com/live-q/live-q#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "express-session": "^1.15.6",
+    "hbs": "^4.0.1",
+    "path": "^0.12.7"
+  }
 }
