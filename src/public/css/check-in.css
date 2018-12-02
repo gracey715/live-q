@@ -5,4 +5,14 @@ form {
 
 input {
     margin: 1rem 0rem;
+    text-align: left;
+}
+
+#party_size {
+    width: 2rem;
+    text-align: center;
+}
+
+#phone_number {
+    width: 5.5rem;
 }
