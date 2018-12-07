@@ -1,0 +1,23 @@
+<table>
+    <thead>
+        <tr>
+            <td id="position">#</td>
+            <td>Party Name</td>
+            <td id="party_size">Party Size</td>
+            <td id="actions">Actions</td>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each queue}}
+        <tr>
+            <td>{{position}}</td>
+            <td>{{partyName}}</td>
+            <td>{{partySize}}</td>
+            <td>
+                <form method="POST" action="/serve_from_queue/{{eventID}}"><input type="submit" value="Serve"></form>
+                <form method="POST" action="/remove_from_queue/{{eventID}}"><input type="submit" value="Remove"></form>
+            </td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>
