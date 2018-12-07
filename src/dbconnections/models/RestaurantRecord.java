@@ -3,7 +3,7 @@ import models.Customer;
 public class RestaurantRecord {
 
 	private String name;
-	private Customer customer;
+	private int customer;
 	private int partySize;
 
 	public RestaurantRecord() {
@@ -17,11 +17,11 @@ public class RestaurantRecord {
 		return name;
 	}
 
-	public void setCustomer(Customer customer) {
+	public void setCustomer(int customer) {
 		this.customer = customer;
 	}
 
-	public Customer getCustomer() {
+	public int getCustomer() {
 		return customer;
 	}
 

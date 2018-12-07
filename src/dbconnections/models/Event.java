@@ -1,12 +1,11 @@
 import java.sql.Timestamp;
-import models.RestaurantRecord;
 
 public class Event {
 
 	private int id;
 	private Timestamp timeJoined;
 	private Timestamp timeServed;
-	private RestaurantRecord restaurant;
+	private String restaurant;
 	private int partySize;
 	private int position;
 
@@ -37,11 +36,11 @@ public class Event {
 		return timeServed;
 	}
 
-	public void setRestaurant(RestaurantRecord restaurant) {
+	public void setRestaurant(String restaurant) {
 		this.restaurant = restaurant;
 	}
 
-	public RestaurantRecord getRestaurant() {
+	public String getRestaurant() {
 		return restaurant;
 	}
 

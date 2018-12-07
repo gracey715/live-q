@@ -49,6 +49,7 @@ public class restaurantQueries {
 				rec.setPartySize(rs.getInt(3));
 				result.add(rec);
 			}
+			pstmt.close();
 		}
 		return result;
 	}
