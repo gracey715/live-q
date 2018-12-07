@@ -11,20 +11,6 @@ module.exports.Event = sequelize.define("event", {
     position: { type: Sequelize.INTEGER }
 }, { freezeTableName: true, timestamps: false });
 
-// Event.create({
-//     restaurant_id: "foo",
-//     time_joined: new Date().toISOString(),
-//     time_served: null,
-//     party_size: 4,
-//     position: 2
-// }).then(function(err) {
-//     if (err) {
-//         console.log(err);
-//     } else {
-//         console.log("Success!");
-//     }
-// })
-
 const WaitTime = sequelize.define("wait_times", {
     restaurant_id: { type: Sequelize.STRING },
     position: { type: Sequelize.INTEGER },
