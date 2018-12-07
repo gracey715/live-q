@@ -2,26 +2,28 @@ const Sequelize = require("sequelize");
 const config = require("./psql_config");
 const sequelize = new Sequelize(config.getURI());
 
-const Customer = sequelize.define("customer", {
-    customer_id: { type: Sequelize.INTEGER, primaryKey: true },
-    first_name: { type: Sequelize.STRING },
-    last_name: { type: Sequelize.STRING }
-}, { freezeTableName: true, timestamps: false });
-
-const Event = sequelize.define("event", {
-    event_id: { type: Sequelize.INTEGER, primaryKey: true },
+module.exports.Event = sequelize.define("event", {
+    event_id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     restaurant_id: { type: Sequelize.STRING },
-    time_joined: { type: Sequelize.TIME },
-    time_served: { type: Sequelize.TIME },
+    time_joined: { type: Sequelize.NOW },
+    time_served: { type: Sequelize.NOW },
     party_size: { type: Sequelize.INTEGER },
     position: { type: Sequelize.INTEGER }
 }, { freezeTableName: true, timestamps: false });
 
-const Restaurant = sequelize.define("restaurant", {
-    restaurant_id: { type: Sequelize.STRING, primaryKey: true },
-    customer_id: { type: Sequelize.INTEGER },
-    party_size: { type: Sequelize.INTEGER }
-}, { freezeTableName: true, timestamps: false });
+// Event.create({
+//     restaurant_id: "foo",
+//     time_joined: new Date().toISOString(),
+//     time_served: null,
+//     party_size: 4,
+//     position: 2
+// }).then(function(err) {
+//     if (err) {
+//         console.log(err);
+//     } else {
+//         console.log("Success!");
+//     }
+// })
 
 const WaitTime = sequelize.define("wait_times", {
     restaurant_id: { type: Sequelize.STRING },
