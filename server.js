@@ -1,8 +1,19 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
-
+const accountSid = 'AC88493f5881ce0e2c048f719b68113d6e';
+const authToken = 'f24e1120b5e018fe8db7c461a991814c';
+const client = require('twilio')(accountSid, authToken);
 const app = express();
+
+client.messages
+  .create({
+     body: 'This is the ship that made the Kessel Run in fourteen parsecs?',
+     from: '+18627019037',
+     to: '+16464794830'
+   })
+  .then(message => console.log(message.sid))
+  .done();
 
 app.set('view engine', 'hbs');
 app.set('views', __dirname + "/views");
