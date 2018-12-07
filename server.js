@@ -1,7 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
-const psql_updater = require("./src/psql_updater");
+const psql_communicator = require("./src/psql_communicator");
 
 const app = express();
 
@@ -38,7 +38,7 @@ app.post('/check-in/:restaurant_id', (req, res) => {
     const phoneNumber = req.body.phone_number;
     // TODO: Add the event to the Redis table
 
-    psql_updater.logCheckIn({
+    psql_communicator.logCheckIn({
         restaurant_id: restaurantID,
         time_joined: new Date().toISOString(),
         time_served: null,
