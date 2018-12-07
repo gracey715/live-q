@@ -66,13 +66,16 @@ public class eventQueries {
 	/**
 	 * Selects events by restaurant name
 	 */
-	private List<Event> selectByRestaurant(String restaurantName) {
-		List<Event> result = new ArrayList<>();
-	}
+	// private List<Event> selectByRestaurant(String restaurantName) {
+	// 	List<Event> result = new ArrayList<>();
+	// }
 
 	/**
 	 * Update the time_served field when guest is served
 	 */ 
+	private void updateTimeServed(Timestamp served) {
+		String query = "UPDATE event SET time_served = ? WHERE "
+	}
 
 
 	public void init() throws ServletException {
