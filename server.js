@@ -1,6 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
+const psql_updater = require("./psql_updater");
 
 const app = express();
 
@@ -36,7 +37,15 @@ app.post('/check-in/:restaurant_id', (req, res) => {
     const partySize = req.body.party_size;
     const phoneNumber = req.body.phone_number;
     // TODO: Add the event to the Redis table
-    // TODO: Add the event to the logging table
+
+    psql_updater.logCheckIn({
+        restaurant_id: restaurantID,
+        time_joined: new Date().toISOString(),
+        time_served: null,
+        party_size: partySize,
+        position: 1
+    });
+
     res.redirect(`/status/${phoneNumber}`);
 });
 
