@@ -1,7 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
-const psql_updater = require("./psql_updater");
+const psql_updater = require("./src/psql_updater");
 
 const app = express();
 
