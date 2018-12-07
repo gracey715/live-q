@@ -12,12 +12,12 @@ CREATE TABLE customer(
 );
 
 -- Contains userIDs of users that checked in, their party size
-CREATE TABLE restaurant(
-	restaurant_id VARCHAR(255),
-	customer_id INTEGER REFERENCES customer(customer_id),
-	party_size INTEGER NOT NULL,
-	PRIMARY KEY(restaurant_id)
-);
+-- CREATE TABLE restaurant(
+-- 	restaurant_id VARCHAR(255),
+-- 	customer_id INTEGER REFERENCES customer(customer_id),
+-- 	party_size INTEGER NOT NULL,
+-- 	PRIMARY KEY(restaurant_id)
+-- );
 
 -- Contains information on each "event", ie. one instance of a party checking in to the restaurant
 CREATE TABLE event(
