@@ -1,0 +1,59 @@
+body {
+    background-color: darkgreen;
+    text-align: center;
+    margin: auto;
+    background-position: center;
+    background-repeat: no-repeat;
+    background: linear-gradient(to bottom, #339933, #333300) fixed;
+}
+
+ h1 {
+   color: skyblue;
+   font-family: cf plants and flowers;
+   font-size: 1000%;
+   text-align: center;
+}
+
+h3 {
+  color: skyblue;
+  font-family: cf plants and flowers;
+  font-size: 500%;
+  text-align: center;
+}
+
+p {
+  color: yellow;
+  font-size: 250%;
+}
+
+input[type=text] {
+    padding: 12px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+}
+
+form {
+  color: yellow;
+  font-family: cf plants and flowers
+  font-size: 150%;
+}
+
+input[type=submit] {
+  font-famiy: cf plants and flowers;
+}
+
+table {
+  color: yellow;
+  font-size: 150%;
+  font-famiy: cf plants and flowers;
+}
+
+a {
+    background-color: brown;
+    color: yellow;
+    padding: 14px 25px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+
+}
