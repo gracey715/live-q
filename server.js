@@ -46,20 +46,36 @@ app.post('/check-in/:restaurant_id', (req, res) => {
         position: 1
     });
 
-    res.redirect(`/status/${phoneNumber}`);
+    res.redirect(`/${restaurantID}/status/${phoneNumber}`);
 });
 
-app.get('/status/:event_id', (req, res) => {
+app.get('/:restaurant_id/status/:event_id', (req, res) => {
+    const restaurantID = req.params.restaurant_id;
     const eventID = req.params.event_id;
     // TODO: Get the current queue position from the Redis table
-    // TODO: Get the estimated wait time from the averages table
-    const currentPosition = 3; //placeholder
-    const estimatedWaitTime = 10; //placeholder
-    res.render("status.hbs", {
-        "stylesheet": "status",
-        "pageName": "Status",
-        "current_position": currentPosition,
-        "estimated_wait_time": estimatedWaitTime
+    psql_communicator.getExpectedWaitTime({
+        restaurant_id: restaurantID,
+        position: 1
+    }).then(function(waitTime) {
+        const currentPosition = 3;
+        const estimatedWaitTime = waitTime.estimated_wait;
+
+        res.render("status.hbs", {
+            "stylesheet": "status",
+            "pageName": "Status",
+            "current_position": currentPosition,
+            "estimated_wait_time": estimatedWaitTime
+        });
+    }).catch(err => {
+        console.log(err);
+        const currentPosition = 3;
+        const estimatedWaitTime = "Unknown";
+        res.render("status.hbs", {
+            "stylesheet": "status",
+            "pageName": "Status",
+            "current_position": currentPosition,
+            "estimated_wait_time": estimatedWaitTime
+        });
     });
 });
 
