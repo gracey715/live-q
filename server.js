@@ -10,11 +10,7 @@ app.set('views', __dirname + "/views");
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: false }));
-app.use(session({
-    secret: '6FF28FF9314996EBA7ABDC484A7A6',
-    resave: false,
-    saveUninitialized: true,
-}));
+app.use(session({secret: '6FF28FF9314996EBA7ABDC484A7A6', resave: false, saveUninitialized: true }));
 
 app.get("/", (req, res) => {
     res.render("home.hbs", {
@@ -36,7 +32,6 @@ app.post('/check-in/:restaurant_id', (req, res) => {
     const lastName = req.body.last_name;
     const partySize = req.body.party_size;
     const phoneNumber = req.body.phone_number;
-    // TODO: Add the event to the Redis table
 
     psql_communicator.logCheckIn({
         restaurant_id: restaurantID,
@@ -44,6 +39,11 @@ app.post('/check-in/:restaurant_id', (req, res) => {
         time_served: null,
         party_size: partySize,
         position: 1
+    }).then(function(event) {
+        const eventID = event.event_id;
+        // TODO: Add the event to the Redis table
+    }).catch(function(err) {
+        console.log(err);
     });
 
     res.redirect(`/${restaurantID}/status/${phoneNumber}`);
