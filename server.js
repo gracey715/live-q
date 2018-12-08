@@ -20,11 +20,7 @@ app.set('views', __dirname + "/views");
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: false }));
-app.use(session({
-    secret: '6FF28FF9314996EBA7ABDC484A7A6',
-    resave: false,
-    saveUninitialized: true,
-}));
+app.use(session({secret: '6FF28FF9314996EBA7ABDC484A7A6', resave: false, saveUninitialized: true }));
 
 app.get("/", (req, res) => {
     res.render("home.hbs", {
@@ -46,6 +42,7 @@ app.post('/check-in/:restaurant_id', (req, res) => {
     const lastName = req.body.last_name;
     const partySize = req.body.party_size;
     const phoneNumber = req.body.phone_number;
+<<<<<<< HEAD
     // TODO: Add the event to the Redis table
     const eventID = req.params.event_id;
     const cliObj = eventID + "," + restaurantID + "," + firstName + "," + lastName + "," + partySize + "," + phoneNumber + "";
@@ -61,6 +58,8 @@ app.post('/check-in/:restaurant_id', (req, res) => {
       }
       //console.log('GET result ->' + result);
     });
+=======
+>>>>>>> 4c1f0212b85b7a6e6b93698495069414a359e47f
 
     psql_communicator.logCheckIn({
         restaurant_id: restaurantID,
@@ -68,6 +67,11 @@ app.post('/check-in/:restaurant_id', (req, res) => {
         time_served: null,
         party_size: partySize,
         position: 1
+    }).then(function(event) {
+        const eventID = event.event_id;
+        // TODO: Add the event to the Redis table
+    }).catch(function(err) {
+        console.log(err);
     });
 
 

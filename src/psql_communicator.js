@@ -1,13 +1,13 @@
 const psql_db = require("./psql");
 
 module.exports.logCheckIn = function(values) {
-    psql_db.Event.create(values)
-    .then(function(err) {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log("Success!");
-        }
+    return new Promise((resolve, reject) => {
+        psql_db.Event.create(values)
+        .then(function(event) {
+            resolve(event);
+        }).catch(function(err) {
+            reject("Unable to create event.");
+        });
     });
 };
 
