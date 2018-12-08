@@ -184,8 +184,16 @@ app.post("/remove_from_queue/:restaurant_id/:event_id", (req, res) => {
     const restaurantID = req.params.restaurant_id;
     const eventID = req.params.event_id;
     // TODO: Remove the event from the Redis table
-    // TODO: Remove the event from the logging table
-    res.send("Remove route triggered");
+
+    psql_communicator.removeEvent({
+        event_id: eventID
+    }).then(function(eventRemoved) {
+        eventRemoved ? console.log("Event removed") : console.log("Event ID not found.");
+    }).catch(function(err) {
+        console.log(err);
+    })
+
+    res.redirect(`/dashboard/${restaurantID}`);
 });
 
 app.listen(process.env.PORT || 3000);

@@ -34,3 +34,15 @@ module.exports.logServe = function(values) {
         });
     })
 }
+
+module.exports.removeEvent = function(values) {
+    return new Promise((resolve, reject) => {
+        psql_db.Event.destroy({
+            where: values
+        }).then(function(eventRemoved) {
+            resolve(eventRemoved);
+        }).catch(function(err) {
+            reject(err);
+        });
+    })
+}
