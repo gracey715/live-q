@@ -1,6 +1,6 @@
 const Sequelize = require("sequelize");
 const config = require("./psql_config");
-const sequelize = new Sequelize(config.getURI());
+const sequelize = new Sequelize(config.getURI(), { logging: false } );
 
 module.exports.Event = sequelize.define("event", {
     event_id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
@@ -11,10 +11,9 @@ module.exports.Event = sequelize.define("event", {
     position: { type: Sequelize.INTEGER }
 }, { freezeTableName: true, timestamps: false });
 
-const WaitTime = sequelize.define("wait_times", {
+module.exports.WaitTime = sequelize.define("wait_times", {
     restaurant_id: { type: Sequelize.STRING },
     position: { type: Sequelize.INTEGER },
-    party_size: { type: Sequelize.INTEGER },
     estimated_wait: { type: Sequelize.INTEGER }
 }, { freezeTableName: true, timestamps: false });
-WaitTime.removeAttribute('id');
+module.exports.WaitTime.removeAttribute('id');

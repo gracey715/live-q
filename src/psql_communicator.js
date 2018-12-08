@@ -9,4 +9,15 @@ module.exports.logCheckIn = function(values) {
             console.log("Success!");
         }
     });
-}
+};
+
+module.exports.getExpectedWaitTime = function(values) {
+    return new Promise((resolve, reject) => {
+        psql_db.WaitTime.findOne({
+            where: values,
+        }).then(function(waitTime) {
+            if (waitTime != null) resolve(waitTime);
+            reject("Record not found");
+        });
+    });
+};

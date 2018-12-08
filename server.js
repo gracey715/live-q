@@ -5,9 +5,6 @@ const psql_communicator = require("./src/psql_communicator");
 
 const app = express();
 
-//var redis = require('redis'), client = redis.createClient();
-//let queue = [];
-
 app.set('view engine', 'hbs');
 app.set('views', __dirname + "/views");
 
@@ -39,19 +36,7 @@ app.post('/check-in/:restaurant_id', (req, res) => {
     const lastName = req.body.last_name;
     const partySize = req.body.party_size;
     const phoneNumber = req.body.phone_number;
-
-    /*const cliObj = restaurantID + "," + firstName + "," + lastName + "," + partySize + "," + phoneNumber + "";
     // TODO: Add the event to the Redis table
-
-    client.on("cliObj", function(req,res){
-      queue.push(res);
-      console.log(queue);
-    });
-
-    client.set('myqueue', queue);
-    client.get('myqueue', function(err,res){
-      console.log(res);
-    });*/
 
     psql_communicator.logCheckIn({
         restaurant_id: restaurantID,
@@ -66,17 +51,33 @@ app.post('/check-in/:restaurant_id', (req, res) => {
     res.redirect(`/status/${phoneNumber}`);
 });
 
-app.get('/status/:event_id', (req, res) => {
+app.get('/:restaurant_id/status/:event_id', (req, res) => {
+    const restaurantID = req.params.restaurant_id;
     const eventID = req.params.event_id;
     // TODO: Get the current queue position from the Redis table
-    // TODO: Get the estimated wait time from the averages table
-    const currentPosition = 3; //placeholder
-    const estimatedWaitTime = 10; //placeholder
-    res.render("status.hbs", {
-        "stylesheet": "status",
-        "pageName": "Status",
-        "current_position": currentPosition,
-        "estimated_wait_time": estimatedWaitTime
+    psql_communicator.getExpectedWaitTime({
+        restaurant_id: restaurantID,
+        position: 1
+    }).then(function(waitTime) {
+        const currentPosition = 3;
+        const estimatedWaitTime = waitTime.estimated_wait;
+
+        res.render("status.hbs", {
+            "stylesheet": "status",
+            "pageName": "Status",
+            "current_position": currentPosition,
+            "estimated_wait_time": estimatedWaitTime
+        });
+    }).catch(err => {
+        console.log(err);
+        const currentPosition = 3;
+        const estimatedWaitTime = "Unknown";
+        res.render("status.hbs", {
+            "stylesheet": "status",
+            "pageName": "Status",
+            "current_position": currentPosition,
+            "estimated_wait_time": estimatedWaitTime
+        });
     });
 });
 
