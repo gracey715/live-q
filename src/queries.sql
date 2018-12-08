@@ -9,7 +9,8 @@ UPDATE event SET time_served = ? WHERE event_id = ?;
 
 -- QUERIES FOR WAIT_TIMES TABLE
 -- Get the average wait time for a certain position in line
-SELECT avg(estimated_wait) FROM wait_times WHERE position = ?;
+SELECT avg(estimated_wait) FROM wait_times 
+WHERE position = ? AND restaurant_id ILIKE ?;
 
 -- Update the estimated wait time for a position
 UPDATE wait_times SET estimated_wait = ? WHERE position = ?;
