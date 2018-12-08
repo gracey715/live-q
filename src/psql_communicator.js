@@ -21,3 +21,16 @@ module.exports.getExpectedWaitTime = function(values) {
         });
     });
 };
+
+module.exports.logServe = function(values) {
+    return new Promise((resolve, reject) => {
+        psql_db.Event.update(
+            { time_served: new Date().toISOString() },
+            { where: values }
+        ).then(function(updatedEvents) {
+            resolve(updatedEvents[0] === 1);
+        }).catch(function(err) {
+            reject(err);
+        });
+    })
+}

@@ -101,7 +101,7 @@ app.get("/dashboard/:restaurant_id", (req, res) => {
     const queue = [];
     // TODO: Get the entire queue from the Redis table
     // TODO: Push each row from the Redis table into "queue", matching the structure of the placeholder
-    queue.push({"eventID": 123, "position": 1, "partyName": "Mason", "partySize": 4}); //placeholder
+    queue.push({"restaurantID": restaurantID, "eventID": 40, "position": 1, "partyName": "Mason", "partySize": 4}); //placeholder
 
     res.render("dashboard.hbs", {
         "stylesheet": "dashboard",
@@ -110,15 +110,25 @@ app.get("/dashboard/:restaurant_id", (req, res) => {
     });
 })
 
-app.post("/serve_from_queue/:event_id", (req, res) => {
+app.post("/serve_from_queue/:restaurant_id/:event_id", (req, res) => {
+    const restaurantID = req.params.restaurant_id;
     const eventID = req.params.event_id;
     // TODO: Send an alert to the user
     // TODO: Remove the event from Redis table
-    // TODO: Update the event in the logging table
-    res.send("Serve route triggered");
+
+    psql_communicator.logServe({
+        event_id: eventID
+    }).then(function(eventUpdated) {
+        eventUpdated ? console.log("Serve time logged!") : console.log("Event ID not found.");
+    }).catch(function(err) {
+        console.log(err);
+    });
+
+    res.redirect(`/dashboard/${restaurantID}`);
 });
 
-app.post("/remove_from_queue/:event_id", (req, res) => {
+app.post("/remove_from_queue/:restaurant_id/:event_id", (req, res) => {
+    const restaurantID = req.params.restaurant_id;
     const eventID = req.params.event_id;
     // TODO: Remove the event from the Redis table
     // TODO: Remove the event from the logging table
