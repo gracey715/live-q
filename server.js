@@ -88,8 +88,12 @@ app.get('/restaurant_login', (req, res) => {
 
 app.post('/restaurant_login', (req, res) => {
     const restaurantID = req.body.restaurant_id;
-    // TODO: Handle the event where an invalid restaurant ID is given
-    res.redirect(`/dashboard/${restaurantID}`);
+    const restaurants = ["la_ratatouille", "jack_rabbit_slims"];
+    if (restaurants.includes(restaurantID)) {
+        res.redirect(`/dashboard/${restaurantID}`);
+    } else {
+        res.redirect('/restaurant_login');
+    }
 });
 
 app.get("/dashboard/:restaurant_id", (req, res) => {
