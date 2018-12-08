@@ -2,24 +2,28 @@
   "name": "live-q",
   "version": "1.0.0",
   "description": "LiveQ is an app that serves both restaurants and users. When guests arrive at a participating restaurant, they can check in to the queue. Guests can then remotely check their position in line and their projected wait time. They can also provide their contact information to receive an automated text/email from the restaurant when they’re next in line. The restaurant  will have information on all the guests waiting in line at the moment. They will have access to a dashboard or a UI where they can add/remove customers. Guests can also see the wait times for different restaurants in their area.",
-  "main": "jedisredis.js",
-  "dependencies": {
-    "redis": "^2.8.0",
-    "sequelize": "^4.41.2"
-  },
-  "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
-  },
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/live-q/live-q.git"
   },
-  "author": "",
+  "author": "Amy Chen, Justin Mason, Christine Udavchak, Grace Yang",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/live-q/live-q/issues"
   },
-  "homepage": "https://github.com/live-q/live-q#readme"
+  "homepage": "https://github.com/live-q/live-q#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "express-session": "^1.15.6",
+    "hbs": "^4.0.1",
+    "path": "^0.12.7",
+    "pg": "^7.7.1",
+    "pg-hstore": "^2.3.2",
+    "redis": "^2.8.0",
+    "sequelize": "^4.41.2"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
 }

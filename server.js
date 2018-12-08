@@ -5,6 +5,16 @@ const psql_communicator = require("./src/psql_communicator");
 
 const app = express();
 
+var redis = require('redis'), client = redis.createClient();
+client.on('connect', function() {
+  console.log('Redis client connected');
+});
+client.on('error', function (err) {
+    console.log('Something went wrong ' + err);
+});
+
+let queue = [];
+
 app.set('view engine', 'hbs');
 app.set('views', __dirname + "/views");
 
@@ -37,6 +47,20 @@ app.post('/check-in/:restaurant_id', (req, res) => {
     const partySize = req.body.party_size;
     const phoneNumber = req.body.phone_number;
     // TODO: Add the event to the Redis table
+    const eventID = req.params.event_id;
+    const cliObj = eventID + "," + restaurantID + "," + firstName + "," + lastName + "," + partySize + "," + phoneNumber + "";
+    //console.log(cliObj);
+    queue.push(cliObj);
+    console.log(cliObj);
+
+    client.set('my test key', queue, redis.print);
+    client.get('my test key', function (error, result) {
+      if (error) {
+        console.log(error);
+        throw error;
+      }
+      //console.log('GET result ->' + result);
+    });
 
     psql_communicator.logCheckIn({
         restaurant_id: restaurantID,
@@ -52,9 +76,36 @@ app.post('/check-in/:restaurant_id', (req, res) => {
 });
 
 app.get('/:restaurant_id/status/:event_id', (req, res) => {
+    console.log("hi");
     const restaurantID = req.params.restaurant_id;
     const eventID = req.params.event_id;
     // TODO: Get the current queue position from the Redis table
+    const phone = req.params.phone_number;
+    let splitarray = [];
+    let restaurantarray = [];
+    let restaurantIDcount = 0;
+    for(let i = 0; i < queue.length; i++){
+      splitarray = queue[i].split(",");
+      restaurantarray.push(splitarray[0]);
+    }
+    let correct = "";
+    for(let i = 0; i < queue.length; i++){
+      for(let j = 0; j < queue.length; j++){
+        if(queue[i] == restaurantID){
+          if(queue[j] == eventID){
+            correct = i;
+          }
+        }
+      }
+    }
+    client.get(correct, function (error, result) {
+      if (error) {
+        console.log(error);
+        throw error;
+      }
+      //console.log('GET result ->' + result);
+    });
+
     psql_communicator.getExpectedWaitTime({
         restaurant_id: restaurantID,
         position: 1
