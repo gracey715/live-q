@@ -1,8 +1,12 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
+const psql_communicator = require("./src/psql_communicator");
 
 const app = express();
+
+//var redis = require('redis'), client = redis.createClient();
+//let queue = [];
 
 app.set('view engine', 'hbs');
 app.set('views', __dirname + "/views");
@@ -35,8 +39,30 @@ app.post('/check-in/:restaurant_id', (req, res) => {
     const lastName = req.body.last_name;
     const partySize = req.body.party_size;
     const phoneNumber = req.body.phone_number;
+
+    /*const cliObj = restaurantID + "," + firstName + "," + lastName + "," + partySize + "," + phoneNumber + "";
     // TODO: Add the event to the Redis table
-    // TODO: Add the event to the logging table
+
+    client.on("cliObj", function(req,res){
+      queue.push(res);
+      console.log(queue);
+    });
+
+    client.set('myqueue', queue);
+    client.get('myqueue', function(err,res){
+      console.log(res);
+    });*/
+
+    psql_communicator.logCheckIn({
+        restaurant_id: restaurantID,
+        time_joined: new Date().toISOString(),
+        time_served: null,
+        party_size: partySize,
+        position: 1
+    });
+
+
+
     res.redirect(`/status/${phoneNumber}`);
 });
 
