@@ -14,8 +14,8 @@
             <td>{{partyName}}</td>
             <td>{{partySize}}</td>
             <td>
-                <form method="POST" action="/serve_from_queue/{{eventID}}"><input type="submit" value="Serve"></form>
-                <form method="POST" action="/remove_from_queue/{{eventID}}"><input type="submit" value="Remove"></form>
+                <form method="POST" action="/serve_from_queue/{{restaurantID}}/{{eventID}}"><input type="submit" value="Serve"></form>
+                <form method="POST" action="/remove_from_queue/{{restaurantID}}/{{eventID}}"><input type="submit" value="Remove"></form>
             </td>
         </tr>
         {{/each}}

@@ -1,14 +1,8 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
-<<<<<<< HEAD
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.AUTH_TOKEN;
-const client = require('twilio')(accountSid, authToken);
-=======
 const psql_communicator = require("./src/psql_communicator");
 
->>>>>>> f9801cf9cffad38e2753957608490bdb0a9480d6
 const app = express();
 
 var redis = require('redis'), client = redis.createClient();
@@ -20,13 +14,17 @@ client.on('error', function (err) {
 });
 
 let queue = [];
-let newqueue = [];
 
 app.set('view engine', 'hbs');
 app.set('views', __dirname + "/views");
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: false }));
-app.use(session({secret: '6FF28FF9314996EBA7ABDC484A7A6', resave: false, saveUninitialized: true }));
+app.use(session({
+    secret: '6FF28FF9314996EBA7ABDC484A7A6',
+    resave: false,
+    saveUninitialized: true,
+}));
 
 app.get("/", (req, res) => {
     res.render("home.hbs", {
@@ -48,6 +46,21 @@ app.post('/check-in/:restaurant_id', (req, res) => {
     const lastName = req.body.last_name;
     const partySize = req.body.party_size;
     const phoneNumber = req.body.phone_number;
+    // TODO: Add the event to the Redis table
+    const eventID = req.params.event_id;
+    const cliObj = eventID + "," + restaurantID + "," + firstName + "," + lastName + "," + partySize + "," + phoneNumber + "";
+    //console.log(cliObj);
+    queue.push(cliObj);
+    console.log(cliObj);
+
+    client.set('my test key', queue, redis.print);
+    client.get('my test key', function (error, result) {
+      if (error) {
+        console.log(error);
+        throw error;
+      }
+      //console.log('GET result ->' + result);
+    });
 
     psql_communicator.logCheckIn({
         restaurant_id: restaurantID,
@@ -55,79 +68,49 @@ app.post('/check-in/:restaurant_id', (req, res) => {
         time_served: null,
         party_size: partySize,
         position: 1
-    }).then(function(event) {
-        const eventID = event.event_id;
-        // TODO: Add the event to the Redis table
-        const cliObj = eventID + "," + restaurantID + "," + firstName + "," + lastName + "," + partySize + "," + phoneNumber + "";
-        queue.push(cliObj);
-
-        client.set('my test key', queue, redis.print);
-        client.get('my test key', function (error, result) {
-          if (error) {
-            console.log(error);
-            throw error;
-          }
-        });
-
-        /*client.rpush.apply(client, [String(cliObj)].concat(queue).concat(function(err, ok){
-          console.log(err, ok);
-        }));*/
-
-
-        res.redirect(`/${restaurantID}/status/${eventID}`);
-    }).catch(function(err) {
-        console.log(err);
-        res.redirect(`/check-in/${restaurantID}`);
     });
+
+
+
+    res.redirect(`/status/${phoneNumber}`);
 });
 
 app.get('/:restaurant_id/status/:event_id', (req, res) => {
+    console.log("hi");
     const restaurantID = req.params.restaurant_id;
     const eventID = req.params.event_id;
     // TODO: Get the current queue position from the Redis table
-    let position = 0;
-    client.get('my test key', function (error, result) {
+    const phone = req.params.phone_number;
+    let splitarray = [];
+    let restaurantarray = [];
+    let restaurantIDcount = 0;
+    for(let i = 0; i < queue.length; i++){
+      splitarray = queue[i].split(",");
+      restaurantarray.push(splitarray[0]);
+    }
+    let correct = "";
+    for(let i = 0; i < queue.length; i++){
+      for(let j = 0; j < queue.length; j++){
+        if(queue[i] == restaurantID){
+          if(queue[j] == eventID){
+            correct = i;
+          }
+        }
+      }
+    }
+    client.get(correct, function (error, result) {
       if (error) {
         console.log(error);
         throw error;
       }
-      let splitarray = [];
-      splitarray = result.split(",");
-      let obj = [];
-      console.log(splitarray);
-      for(let i = 0; i < splitarray.length; i++){
-        if(i == 0 || i % 6 == 0){
-          obj.push(splitarray[i]);
-          obj.push(splitarray[i + 1]);
-        }
-      }
-      console.log(obj);
-      let resID = '';
-      let objs = [];
-      for(let i = 0; i < obj.length; i++){
-        if(obj[i] == eventID){
-          resID = obj[i + 1];
-        }
-        objs.push(obj[i]);
-      }
-      for(let i = 0; i < objs.length; i++){
-        if(objs[i] == resID){
-          position = i + 1;
-        }
-      }
-      console.log(position);
+      //console.log('GET result ->' + result);
     });
-    /*client.lrange(eventID, 0, -1, function(err, reply) {
-      console.log(reply);
-    });*/
-
 
     psql_communicator.getExpectedWaitTime({
         restaurant_id: restaurantID,
         position: 1
     }).then(function(waitTime) {
-        //const currentPosition = 3;
-        const currentPosition = position;
+        const currentPosition = 3;
         const estimatedWaitTime = waitTime.estimated_wait;
 
         res.render("status.hbs", {
@@ -138,8 +121,7 @@ app.get('/:restaurant_id/status/:event_id', (req, res) => {
         });
     }).catch(err => {
         console.log(err);
-        //const currentPosition = 3;
-        const currentPosition = position;
+        const currentPosition = 3;
         const estimatedWaitTime = "Unknown";
         res.render("status.hbs", {
             "stylesheet": "status",
@@ -169,12 +151,8 @@ app.post('/restaurant_login', (req, res) => {
 
 app.get("/dashboard/:restaurant_id", (req, res) => {
     const restaurantID = req.params.restaurant_id;
-
     const queue = [];
     // TODO: Get the entire queue from the Redis table
-    client.get('my test key', function (error, result) {
-      console.log(result);
-    });
     // TODO: Push each row from the Redis table into "queue", matching the structure of the placeholder
     queue.push({"restaurantID": restaurantID, "eventID": 40, "position": 1, "partyName": "Mason", "partySize": 4}); //placeholder
 
@@ -190,9 +168,6 @@ app.post("/serve_from_queue/:restaurant_id/:event_id", (req, res) => {
     const eventID = req.params.event_id;
     // TODO: Send an alert to the user
     // TODO: Remove the event from Redis table
-    client.del('my test key', function(err, reply) {
-      console.log(reply);
-    });
 
     psql_communicator.logServe({
         event_id: eventID
@@ -210,30 +185,7 @@ app.post("/remove_from_queue/:restaurant_id/:event_id", (req, res) => {
     const eventID = req.params.event_id;
     // TODO: Remove the event from the Redis table
     // TODO: Remove the event from the logging table
-    require('dotenv').config();
-
-    client.messages
-        .create({
-            body: 'You\'re the next in line!',
-            from: '+18627019037',
-            to: '+16464794830'
-        })
-    .then(message => console.log(message.sid))
-    .done();
     res.send("Remove route triggered");
-    client.del('my test key', function(err, reply) {
-      console.log(reply);
-    });
-
-    psql_communicator.removeEvent({
-        event_id: eventID
-    }).then(function(eventRemoved) {
-        eventRemoved ? console.log("Event removed") : console.log("Event ID not found.");
-    }).catch(function(err) {
-        console.log(err);
-    })
-
-    res.redirect(`/dashboard/${restaurantID}`);
 });
 
 app.listen(process.env.PORT || 3000);
