@@ -1,23 +1,13 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
-const accountSid = 'AC88493f5881ce0e2c048f719b68113d6e';
-const authToken = 'f24e1120b5e018fe8db7c461a991814c';
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 const app = express();
 
-client.messages
-  .create({
-     body: 'This is the ship that made the Kessel Run in fourteen parsecs?',
-     from: '+18627019037',
-     to: '+16464794830'
-   })
-  .then(message => console.log(message.sid))
-  .done();
-
 app.set('view engine', 'hbs');
 app.set('views', __dirname + "/views");
-
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: false }));
 app.use(session({
@@ -80,6 +70,7 @@ app.post('/restaurant_login', (req, res) => {
 
 app.get("/dashboard/:restaurant_id", (req, res) => {
     const restaurantID = req.params.restaurant_id;
+
     const queue = [];
     // TODO: Get the entire queue from the Redis table
     // TODO: Push each row from the Redis table into "queue", matching the structure of the placeholder
@@ -104,6 +95,16 @@ app.post("/remove_from_queue/:event_id", (req, res) => {
     const eventID = req.params.event_id;
     // TODO: Remove the event from the Redis table
     // TODO: Remove the event from the logging table
+    require('dotenv').config();
+
+    client.messages
+        .create({
+            body: 'You\'re the next in line!',
+            from: '+18627019037',
+            to: '+16464794830'
+        })
+    .then(message => console.log(message.sid))
+    .done();
     res.send("Remove route triggered");
 });
 
