@@ -6,6 +6,7 @@ const psql_communicator = require("./src/psql_communicator");
 const app = express();
 
 var redis = require('redis'), client = redis.createClient();
+var assert = require('assert');
 client.on('connect', function() {
   console.log('Redis client connected');
 });
@@ -54,20 +55,13 @@ app.post('/check-in/:restaurant_id', (req, res) => {
         const eventID = event.event_id;
         // TODO: Add the event to the Redis table
         const cliObj = eventID + "," + restaurantID + "," + firstName + "," + lastName + "," + partySize + "," + phoneNumber + "";
+        const eventrest = eventID + "," + restaurantID + "";
         queue.push(cliObj);
 
-        client.set('my test key', queue, redis.print);
-        client.get('my test key', function (error, result) {
-          if (error) {
-            console.log(error);
-            throw error;
-          }
+        client.lpush('helloworld', eventrest);
+        client.lrange('helloworld', 0, -1, function(err, reply) {
+          //console.log(reply);
         });
-
-        /*client.rpush.apply(client, [String(cliObj)].concat(queue).concat(function(err, ok){
-          console.log(err, ok);
-        }));*/
-
 
         res.redirect(`/${restaurantID}/status/${eventID}`);
     }).catch(function(err) {
@@ -81,40 +75,30 @@ app.get('/:restaurant_id/status/:event_id', (req, res) => {
     const eventID = req.params.event_id;
     // TODO: Get the current queue position from the Redis table
     let position = 0;
-    client.get('my test key', function (error, result) {
+    client.lrange('helloworld', 0, -1, function (error, result) {
       if (error) {
         console.log(error);
         throw error;
       }
-      let splitarray = [];
-      splitarray = result.split(",");
-      let obj = [];
-      console.log(splitarray);
-      for(let i = 0; i < splitarray.length; i++){
-        if(i == 0 || i % 6 == 0){
-          obj.push(splitarray[i]);
-          obj.push(splitarray[i + 1]);
-        }
-      }
-      console.log(obj);
       let resID = '';
       let objs = [];
-      for(let i = 0; i < obj.length; i++){
-        if(obj[i] == eventID){
-          resID = obj[i + 1];
+      for(let i = 0; i < result.length; i++){
+        let resultarray = result[i].split(',');
+        if(resultarray[0] == eventID){
+          resID = resultarray[1];
         }
-        objs.push(obj[i]);
+        objs.push(result[i]);
       }
+      console.log(objs.length);
       for(let i = 0; i < objs.length; i++){
-        if(objs[i] == resID){
-          position = i + 1;
+        let objsarray = objs[i].split(',');
+        if(objsarray[1] == resID){
+          position = position + 1;
         }
       }
       console.log(position);
     });
-    /*client.lrange(eventID, 0, -1, function(err, reply) {
-      console.log(reply);
-    });*/
+
 
 
     psql_communicator.getExpectedWaitTime({
