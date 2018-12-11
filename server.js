@@ -187,7 +187,7 @@ app.post("/remove_from_queue/:restaurant_id/:event_id", (req, res) => {
     const restaurantID = req.params.restaurant_id;
     const eventID = req.params.event_id;
     // TODO: Remove the event from the Redis table
-    client.del('helloworld', 0, -1, function(err, reply) {
+    client.del('helloworld', function(err, reply) {
       console.log(reply);
     });
 
