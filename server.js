@@ -149,44 +149,56 @@ app.post('/restaurant_login', (req, res) => {
 app.get("/dashboard/:restaurant_id", (req, res) => {
     const restaurantID = req.params.restaurant_id;
     const queue = [];
+    const positionarray = [];
     // TODO: Get the entire queue from the Redis table
     client.lrange('helloworld', 0, -1, function (error, result) {
       for(let i = 0; i < result.length; i++){
         let resultarray = result[i].split(',');
+        //console.log(resultarray);
         let event1 = resultarray[0];
+        //console.log(event1);
         let position = 0;
-        for (let i = 0; i < result.length; i++){
+        //for (let i = 0; i < result.length; i++){
           //let position = 0;
-          let resarray = result[i].split(',');
-          let eventID = resarray[0];
-          client.lrange('helloworld', 0, -1, function (error, result) {
+          //let resarray = result[i].split(',');
+          //let eventID = resarray[0];
+          //console.log(eventID);
+          client.lrange('helloworld', 0, i, function (error, result) {
             if (error) {
               console.log(error);
               throw error;
             }
             let resID = '';
+            let count = 0;
             let objs = [];
             for(let i = 0; i < result.length; i++){
               let resultarray = result[i].split(',');
-              if(resultarray[0] == eventID){
+              if(resultarray[0] == event1){
                 resID = resultarray[1];
+                objs.push(result[i]);
+                break;
+                //console.log(event1);
               }
               objs.push(result[i]);
             }
-            console.log(objs.length);
+            //console.log(objs.length);
             for(let i = 0; i < objs.length; i++){
               let objsarray = objs[i].split(',');
               if(objsarray[1] == resID){
                 position = position + 1;
+                //console.log(position);
               }
             }
+            positionarray.push(position);
+            console.log(positionarray);
           });
-        }
+        //}
+        //console.log(positionarray);
         let name1 = resultarray[3];
         let size1 = resultarray[4];
-        queue.push({"restaurantID": restaurantID, "eventID": event1, "position": position, "partyName": name1, "partySize": size1}); //placeholder
+        queue.push({"restaurantID": restaurantID, "eventID": event1, "position": positionarray[i], "partyName": name1, "partySize": size1});
       }
-      console.log(result);
+      //console.log(result);
     });
     // TODO: Push each row from the Redis table into "queue", matching the structure of the placeholder
     //queue.push({"restaurantID": restaurantID, "eventID": 40, "position": 1, "partyName": "Mason", "partySize": 4}); //placeholder
@@ -203,11 +215,13 @@ app.post("/serve_from_queue/:restaurant_id/:event_id", (req, res) => {
     const eventID = req.params.event_id;
     // TODO: Send an alert to the user
     // TODO: Remove the event from Redis table
-    client.lrem('helloworld', function(err, result) {
+
+    client.lrange('helloworld',0, -1, function(err, result) {
+      console.log("result: " + result);
       for(let i = 0; i < result.length; i++){
         let resultarray = result[i].split(',');
         if(resultarray[0] == eventID){
-          client.lrem(result[i]);
+          client.lrem('helloworld', i, result[i]);
         }
       }
     });
@@ -227,12 +241,12 @@ app.post("/remove_from_queue/:restaurant_id/:event_id", (req, res) => {
     const restaurantID = req.params.restaurant_id;
     const eventID = req.params.event_id;
     // TODO: Remove the event from the Redis table
-    client.lrem('helloworld', function(err, result) {
+    client.lrange('helloworld', 0, -1, function(err, result) {
       console.log(result);
       for(let i = 0; i < result.length; i++){
         let resultarray = result[i].split(',');
         if(resultarray[0] == eventID){
-          client.lrem(result[i]);
+          client.lrem('helloworld', i, result[i]);
         }
       }
     });
