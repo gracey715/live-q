@@ -114,13 +114,14 @@ app.get('/:restaurant_id/status/:event_id', (req, res) => {
     }).then(function(waitTime) {
         //const currentPosition = 3;
         const currentPosition = position;
-        const estimatedWaitTime = waitTime.estimated_wait;
+        const estimatedWaitTimeInSeconds = waitTime.estimated_wait;
+        const estimatedWaitTimeInMinutes = Math.ceil(estimatedWaitTimeInSeconds / 60);
 
         res.render("status.hbs", {
             "stylesheet": "status",
             "pageName": "Status",
             "current_position": currentPosition,
-            "estimated_wait_time": estimatedWaitTime
+            "estimated_wait_time": estimatedWaitTimeInMinutes
         });
     }).catch(err => {
         console.log(err);
@@ -170,7 +171,7 @@ app.get("/dashboard/:restaurant_id", (req, res) => {
 
           let name1 = resultarray[3];
           let size1 = resultarray[4];
-          queue.push({"restaurantID": restaurantID, "eventID": event1, "position": position, "partyName": name1, "partySize": size1});
+          queue.unshift({"restaurantID": restaurantID, "eventID": event1, "position": position + 1, "partyName": name1, "partySize": size1});
         }
       }
       //console.log(result);
