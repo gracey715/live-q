@@ -75,7 +75,9 @@ app.get('/:restaurant_id/status/:event_id', (req, res) => {
     const eventID = req.params.event_id;
     // TODO: Get the current queue position from the Redis table
     let position = 0;
+    let count = 0;
     client.lrange('helloworld', 0, -1, function (error, result) {
+      position = result.length;
       if (error) {
         console.log(error);
         throw error;
@@ -86,16 +88,21 @@ app.get('/:restaurant_id/status/:event_id', (req, res) => {
         let resultarray = result[i].split(',');
         if(resultarray[0] == eventID){
           resID = resultarray[1];
+          //count = count + 1;
+          break;
         }
+        //count = count + 1;
         objs.push(result[i]);
       }
-      console.log(objs.length);
+      //console.log(objs.length);
       for(let i = 0; i < objs.length; i++){
         let objsarray = objs[i].split(',');
         if(objsarray[1] == resID){
-          position = position + 1;
+          count = count + 1;
+          //position = position + 1;
         }
       }
+      position = position - count;
       console.log(position);
     });
 
