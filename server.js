@@ -2,6 +2,8 @@ const express = require('express');
 const session = require('express-session');
 const path = require('path');
 const psql_communicator = require("./src/psql_communicator");
+const twilio_config = require("./src/twilio_config");
+const twilio = require("twilio")(twilio_config.getSID(), twilio_config.getToken());
 
 const app = express();
 
@@ -186,8 +188,21 @@ app.get("/dashboard/:restaurant_id", (req, res) => {
 app.post("/serve_from_queue/:restaurant_id/:event_id", (req, res) => {
     const restaurantID = req.params.restaurant_id;
     const eventID = req.params.event_id;
-    // TODO: Send an alert to the user
-    // TODO: Remove the event from Redis table
+    const restaurant = restaurantID === "la_ratatouille" ? "La Ratatouille" : "Jack Rabbit Slims";
+
+    client.lrange('helloworld', 0, -1, function (error, events) {
+        for (let i = 0; i < events.length; i++) {
+            const [curEventID, curRestaurantID, firstName, lastName, partySize, phoneNumber] = events[i].split(",");
+            if (curEventID === eventID) {
+                twilio.messages.create({
+                    body: `Hey ${firstName}, a table is now ready for you at ${restaurant}! Thank you for using LiveQ!`,
+                    from: "+18627019037",
+                    to: `+1${phoneNumber}`
+                }).done();
+            }
+        }
+
+    });
 
     client.lrange('helloworld',0, -1, function(err, result) {
       console.log("result: " + result);
