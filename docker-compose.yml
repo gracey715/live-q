@@ -1,0 +1,7 @@
+version: '2'
+services: 
+        redis:
+                container_name: redis
+                image: launcher.gcr.io/google/redis4
+                ports:
+                        - '6379:6379'
