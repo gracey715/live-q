@@ -7,7 +7,14 @@ const twilio = require("twilio")(twilio_config.getSID(), twilio_config.getToken(
 
 const app = express();
 
-var redis = require('redis'), client = redis.createClient();
+const redis_config = require("./src/redis_config");
+const redis = require('redis');
+const client = redis.createClient({
+    port: redis_config.getPort(),
+    host: redis_config.getHost(),
+    password: redis_config.getPassword()
+});
+
 var assert = require('assert');
 client.on('connect', function() {
   console.log('Redis client connected');
@@ -173,15 +180,12 @@ app.get("/dashboard/:restaurant_id", (req, res) => {
           queue.unshift({"restaurantID": restaurantID, "eventID": event1, "position": position + 1, "partyName": name1, "partySize": size1});
         }
       }
-      //console.log(result);
-    });
-    // TODO: Push each row from the Redis table into "queue", matching the structure of the placeholder
-    //queue.push({"restaurantID": restaurantID, "eventID": 40, "position": 1, "partyName": "Mason", "partySize": 4}); //placeholder
 
-    res.render("dashboard.hbs", {
+      res.render("dashboard.hbs", {
         "stylesheet": "dashboard",
         "pageName": "Dashboard",
         "queue": queue
+      });
     });
 })
 
@@ -212,17 +216,17 @@ app.post("/serve_from_queue/:restaurant_id/:event_id", (req, res) => {
           client.lrem('helloworld', i, result[i]);
         }
       }
-    });
 
-    psql_communicator.logServe({
+      psql_communicator.logServe({
         event_id: eventID
-    }).then(function(eventUpdated) {
-        eventUpdated ? console.log("Serve time logged!") : console.log("Event ID not found.");
-    }).catch(function(err) {
-        console.log(err);
-    });
+        }).then(function(eventUpdated) {
+            eventUpdated ? console.log("Serve time logged!") : console.log("Event ID not found.");
+        }).catch(function(err) {
+            console.log(err);
+        });
 
-    res.redirect(`/dashboard/${restaurantID}`);
+        res.redirect(`/dashboard/${restaurantID}`);
+    });
 });
 
 app.post("/remove_from_queue/:restaurant_id/:event_id", (req, res) => {
@@ -237,9 +241,8 @@ app.post("/remove_from_queue/:restaurant_id/:event_id", (req, res) => {
           client.lrem('helloworld', i, result[i]);
         }
       }
-    });
 
-    psql_communicator.removeEvent({
+      psql_communicator.removeEvent({
         event_id: eventID
     }).then(function(eventRemoved) {
         eventRemoved ? console.log("Event removed") : console.log("Event ID not found.");
@@ -248,6 +251,7 @@ app.post("/remove_from_queue/:restaurant_id/:event_id", (req, res) => {
     })
 
     res.redirect(`/dashboard/${restaurantID}`);
+    });
 });
 
 app.listen(process.env.PORT || 3000);
