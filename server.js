@@ -150,7 +150,7 @@ app.get("/dashboard/:restaurant_id", (req, res) => {
     const restaurantID = req.params.restaurant_id;
     const queue = [];
     // TODO: Get the entire queue from the Redis table
-    client.get('my test key', function (error, result) {
+    client.lrange('helloworld', 0, -1, function (error, result) {
       console.log(result);
     });
     // TODO: Push each row from the Redis table into "queue", matching the structure of the placeholder
@@ -168,7 +168,7 @@ app.post("/serve_from_queue/:restaurant_id/:event_id", (req, res) => {
     const eventID = req.params.event_id;
     // TODO: Send an alert to the user
     // TODO: Remove the event from Redis table
-    client.del('my test key', function(err, reply) {
+    client.del('helloworld', function(err, reply) {
       console.log(reply);
     });
 
@@ -187,7 +187,7 @@ app.post("/remove_from_queue/:restaurant_id/:event_id", (req, res) => {
     const restaurantID = req.params.restaurant_id;
     const eventID = req.params.event_id;
     // TODO: Remove the event from the Redis table
-    client.del('my test key', function(err, reply) {
+    client.del('helloworld', 0, -1, function(err, reply) {
       console.log(reply);
     });
 
