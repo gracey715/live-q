@@ -107,13 +107,14 @@ app.get('/:restaurant_id/status/:event_id', (req, res) => {
     }).then(function(waitTime) {
         //const currentPosition = 3;
         const currentPosition = position;
-        const estimatedWaitTime = waitTime.estimated_wait;
+        const estimatedWaitTimeInSeconds = waitTime.estimated_wait;
+        const estimatedWaitTimeInMinutes = Math.ceil(estimatedWaitTimeInSeconds / 60);
 
         res.render("status.hbs", {
             "stylesheet": "status",
             "pageName": "Status",
             "current_position": currentPosition,
-            "estimated_wait_time": estimatedWaitTime
+            "estimated_wait_time": estimatedWaitTimeInMinutes
         });
     }).catch(err => {
         console.log(err);
