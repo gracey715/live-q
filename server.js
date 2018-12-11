@@ -58,7 +58,7 @@ app.post('/check-in/:restaurant_id', (req, res) => {
         const eventrest = eventID + "," + restaurantID + "";
         queue.push(cliObj);
 
-        client.lpush('helloworld', eventrest);
+        client.lpush('helloworld', cliObj);
         client.lrange('helloworld', 0, -1, function(err, reply) {
           //console.log(reply);
         });
@@ -151,10 +151,45 @@ app.get("/dashboard/:restaurant_id", (req, res) => {
     const queue = [];
     // TODO: Get the entire queue from the Redis table
     client.lrange('helloworld', 0, -1, function (error, result) {
+      for(let i = 0; i < result.length; i++){
+        let resultarray = result[i].split(',');
+        let event1 = resultarray[0];
+        let position = 0;
+        for (let i = 0; i < result.length; i++){
+          //let position = 0;
+          let resarray = result[i].split(',');
+          let eventID = resarray[0];
+          client.lrange('helloworld', 0, -1, function (error, result) {
+            if (error) {
+              console.log(error);
+              throw error;
+            }
+            let resID = '';
+            let objs = [];
+            for(let i = 0; i < result.length; i++){
+              let resultarray = result[i].split(',');
+              if(resultarray[0] == eventID){
+                resID = resultarray[1];
+              }
+              objs.push(result[i]);
+            }
+            console.log(objs.length);
+            for(let i = 0; i < objs.length; i++){
+              let objsarray = objs[i].split(',');
+              if(objsarray[1] == resID){
+                position = position + 1;
+              }
+            }
+          });
+        }
+        let name1 = resultarray[3];
+        let size1 = resultarray[4];
+        queue.push({"restaurantID": restaurantID, "eventID": event1, "position": position, "partyName": name1, "partySize": size1}); //placeholder
+      }
       console.log(result);
     });
     // TODO: Push each row from the Redis table into "queue", matching the structure of the placeholder
-    queue.push({"restaurantID": restaurantID, "eventID": 40, "position": 1, "partyName": "Mason", "partySize": 4}); //placeholder
+    //queue.push({"restaurantID": restaurantID, "eventID": 40, "position": 1, "partyName": "Mason", "partySize": 4}); //placeholder
 
     res.render("dashboard.hbs", {
         "stylesheet": "dashboard",
@@ -168,8 +203,13 @@ app.post("/serve_from_queue/:restaurant_id/:event_id", (req, res) => {
     const eventID = req.params.event_id;
     // TODO: Send an alert to the user
     // TODO: Remove the event from Redis table
-    client.del('helloworld', function(err, reply) {
-      console.log(reply);
+    client.lrem('helloworld', function(err, result) {
+      for(let i = 0; i < result.length; i++){
+        let resultarray = result[i].split(',');
+        if(resultarray[0] == eventID){
+          client.lrem(result[i]);
+        }
+      }
     });
 
     psql_communicator.logServe({
@@ -187,8 +227,14 @@ app.post("/remove_from_queue/:restaurant_id/:event_id", (req, res) => {
     const restaurantID = req.params.restaurant_id;
     const eventID = req.params.event_id;
     // TODO: Remove the event from the Redis table
-    client.del('helloworld', function(err, reply) {
-      console.log(reply);
+    client.lrem('helloworld', function(err, result) {
+      console.log(result);
+      for(let i = 0; i < result.length; i++){
+        let resultarray = result[i].split(',');
+        if(resultarray[0] == eventID){
+          client.lrem(result[i]);
+        }
+      }
     });
 
     psql_communicator.removeEvent({
