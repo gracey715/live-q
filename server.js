@@ -164,7 +164,7 @@ app.get("/dashboard/:restaurant_id", (req, res) => {
 
           let name1 = resultarray[3];
           let size1 = resultarray[4];
-          queue.push({"restaurantID": restaurantID, "eventID": event1, "position": position, "partyName": name1, "partySize": size1});
+          queue.unshift({"restaurantID": restaurantID, "eventID": event1, "position": position + 1, "partyName": name1, "partySize": size1});
         }
       }
       //console.log(result);
