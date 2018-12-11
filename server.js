@@ -152,51 +152,19 @@ app.get("/dashboard/:restaurant_id", (req, res) => {
     const positionarray = [];
     // TODO: Get the entire queue from the Redis table
     client.lrange('helloworld', 0, -1, function (error, result) {
+      let position = 0;
       for(let i = 0; i < result.length; i++){
         let resultarray = result[i].split(',');
+        if(resultarray[1] == restaurantID){
         //console.log(resultarray);
-        let event1 = resultarray[0];
+          let event1 = resultarray[0];
         //console.log(event1);
-        let position = 0;
-        //for (let i = 0; i < result.length; i++){
-          //let position = 0;
-          //let resarray = result[i].split(',');
-          //let eventID = resarray[0];
-          //console.log(eventID);
-          client.lrange('helloworld', 0, i, function (error, result) {
-            if (error) {
-              console.log(error);
-              throw error;
-            }
-            let resID = '';
-            let count = 0;
-            let objs = [];
-            for(let i = 0; i < result.length; i++){
-              let resultarray = result[i].split(',');
-              if(resultarray[0] == event1){
-                resID = resultarray[1];
-                objs.push(result[i]);
-                break;
-                //console.log(event1);
-              }
-              objs.push(result[i]);
-            }
-            //console.log(objs.length);
-            for(let i = 0; i < objs.length; i++){
-              let objsarray = objs[i].split(',');
-              if(objsarray[1] == resID){
-                position = position + 1;
-                //console.log(position);
-              }
-            }
-            positionarray.push(position);
-            console.log(positionarray);
-          });
-        //}
-        //console.log(positionarray);
-        let name1 = resultarray[3];
-        let size1 = resultarray[4];
-        queue.push({"restaurantID": restaurantID, "eventID": event1, "position": positionarray[i], "partyName": name1, "partySize": size1});
+          position = position + 1;
+    
+          let name1 = resultarray[3];
+          let size1 = resultarray[4];
+          queue.push({"restaurantID": restaurantID, "eventID": event1, "position": position, "partyName": name1, "partySize": size1});
+        }
       }
       //console.log(result);
     });
