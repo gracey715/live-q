@@ -102,39 +102,36 @@ app.get('/:restaurant_id/status/:event_id', (req, res) => {
           //position = position + 1;
         }
       }
-      position = position - count - 1;
-      console.log(position);
-    });
+      position = position - count;
 
-
-
-    psql_communicator.getExpectedWaitTime({
+      psql_communicator.getExpectedWaitTime({
         restaurant_id: restaurantID,
-        position: 1
-    }).then(function(waitTime) {
-        //const currentPosition = 3;
-        const currentPosition = position;
-        const estimatedWaitTimeInSeconds = waitTime.estimated_wait;
-        const estimatedWaitTimeInMinutes = Math.ceil(estimatedWaitTimeInSeconds / 60);
+        position: position
+      }).then(function(waitTime) {
+          //const currentPosition = 3;
+          const currentPosition = position;
+          const estimatedWaitTimeInSeconds = waitTime.estimated_wait;
+          const estimatedWaitTimeInMinutes = Math.ceil(estimatedWaitTimeInSeconds / 60);
 
-        res.render("status.hbs", {
-            "stylesheet": "status",
-            "pageName": "Status",
-            "current_position": currentPosition,
-            "estimated_wait_time": estimatedWaitTimeInMinutes
-        });
-    }).catch(err => {
-        console.log(err);
-        //const currentPosition = 3;
-        const currentPosition = position;
-        const estimatedWaitTime = "Unknown";
-        res.render("status.hbs", {
+          res.render("status.hbs", {
+              "stylesheet": "status",
+              "pageName": "Status",
+              "current_position": currentPosition,
+              "estimated_wait_time": estimatedWaitTimeInMinutes
+            });
+        }).catch(err => {
+            console.log(err);
+          //const currentPosition = 3;
+          const currentPosition = position;
+          const estimatedWaitTime = "Unknown";
+          res.render("status.hbs", {
             "stylesheet": "status",
             "pageName": "Status",
             "current_position": currentPosition,
             "estimated_wait_time": estimatedWaitTime
+          });
         });
-    });
+    })
 });
 
 app.get('/restaurant_login', (req, res) => {
