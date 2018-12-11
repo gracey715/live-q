@@ -152,15 +152,15 @@ app.get("/dashboard/:restaurant_id", (req, res) => {
     const positionarray = [];
     // TODO: Get the entire queue from the Redis table
     client.lrange('helloworld', 0, -1, function (error, result) {
-      let position = 0;
+      let position = result.length;
       for(let i = 0; i < result.length; i++){
         let resultarray = result[i].split(',');
         if(resultarray[1] == restaurantID){
         //console.log(resultarray);
           let event1 = resultarray[0];
         //console.log(event1);
-          position = position + 1;
-    
+          position = position - 1;
+
           let name1 = resultarray[3];
           let size1 = resultarray[4];
           queue.push({"restaurantID": restaurantID, "eventID": event1, "position": position, "partyName": name1, "partySize": size1});
