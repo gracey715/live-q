@@ -102,7 +102,7 @@ app.get('/:restaurant_id/status/:event_id', (req, res) => {
           //position = position + 1;
         }
       }
-      position = position - count;
+      position = position - count - 1;
       console.log(position);
     });
 
