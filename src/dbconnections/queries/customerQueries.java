@@ -32,7 +32,6 @@ public class customerQueries {
 
 
 
-
 	public void init() throws ServletException {
 		String url = System.getProperty("cloudsql");
 		log("Connecting to: " + url);
