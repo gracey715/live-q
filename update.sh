@@ -10,7 +10,8 @@
 
 dbname="liveq"
 username="postgres"
-psql $dbname $username << EOF
+PGPASSWORD=4ICcmECkPn11CtF3
+psql -U $username -d $dbname << EOF
 begin;
 update event 
 set wait_time = extract(epoch from(time_served - time_joined))
