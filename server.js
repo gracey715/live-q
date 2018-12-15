@@ -6,14 +6,21 @@ const twilio_config = require("./src/twilio_config");
 const twilio = require("twilio")(twilio_config.getSID(), twilio_config.getToken());
 
 const app = express();
-
-const redis_config = require("./src/redis_config");
+const http = require('http');
 const redis = require('redis');
-const client = redis.createClient({
-    port: redis_config.getPort(),
-    host: redis_config.getHost(),
-    password: redis_config.getPassword()
-});
+const nconf = require('nconf');
+
+nconf.argv().env().file('keys.json');
+
+const client = redis.createClient(
+	nconf.get('redisPort') || '6379',
+	nconf.get('redisHost') || '127.0.0.1',
+	{
+		//'auth_pass': nconf.get('redisKey'),
+		'return_buffers': true
+	}
+).on(' error', (err) => console.error('ERR:REDIS:', err));
+
 
 var assert = require('assert');
 client.on('connect', function() {
@@ -253,5 +260,4 @@ app.post("/remove_from_queue/:restaurant_id/:event_id", (req, res) => {
     res.redirect(`/dashboard/${restaurantID}`);
     });
 });
-
-app.listen(process.env.PORT || 3000);
+app.listen(process.env.PORT || 8080);
