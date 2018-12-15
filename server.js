@@ -2,10 +2,19 @@ const express = require('express');
 const session = require('express-session');
 const path = require('path');
 const psql_communicator = require("./src/psql_communicator");
+const twilio_config = require("./src/twilio_config");
+const twilio = require("twilio")(twilio_config.getSID(), twilio_config.getToken());
 
 const app = express();
 
-var redis = require('redis'), client = redis.createClient();
+const redis_config = require("./src/redis_config");
+const redis = require('redis');
+const client = redis.createClient({
+    port: redis_config.getPort(),
+    host: redis_config.getHost(),
+    password: redis_config.getPassword()
+});
+
 var assert = require('assert');
 client.on('connect', function() {
   console.log('Redis client connected');
@@ -75,7 +84,9 @@ app.get('/:restaurant_id/status/:event_id', (req, res) => {
     const eventID = req.params.event_id;
     // TODO: Get the current queue position from the Redis table
     let position = 0;
+    let count = 0;
     client.lrange('helloworld', 0, -1, function (error, result) {
+      position = result.length;
       if (error) {
         console.log(error);
         throw error;
@@ -86,48 +97,50 @@ app.get('/:restaurant_id/status/:event_id', (req, res) => {
         let resultarray = result[i].split(',');
         if(resultarray[0] == eventID){
           resID = resultarray[1];
+          //count = count + 1;
+          break;
         }
+        //count = count + 1;
         objs.push(result[i]);
       }
-      console.log(objs.length);
+      //console.log(objs.length);
       for(let i = 0; i < objs.length; i++){
         let objsarray = objs[i].split(',');
         if(objsarray[1] == resID){
-          position = position + 1;
+          count = count + 1;
+          //position = position + 1;
         }
       }
-      console.log(position);
-    });
+      position = position - count;
 
-
-
-    psql_communicator.getExpectedWaitTime({
+      psql_communicator.getExpectedWaitTime({
         restaurant_id: restaurantID,
-        position: 1
-    }).then(function(waitTime) {
-        //const currentPosition = 3;
-        const currentPosition = position;
-        const estimatedWaitTimeInSeconds = waitTime.estimated_wait;
-        const estimatedWaitTimeInMinutes = Math.ceil(estimatedWaitTimeInSeconds / 60);
+        position: position
+      }).then(function(waitTime) {
+          //const currentPosition = 3;
+          const currentPosition = position;
+          const estimatedWaitTimeInSeconds = waitTime.estimated_wait;
+          const estimatedWaitTimeInMinutes = Math.ceil(estimatedWaitTimeInSeconds / 60);
 
-        res.render("status.hbs", {
-            "stylesheet": "status",
-            "pageName": "Status",
-            "current_position": currentPosition,
-            "estimated_wait_time": estimatedWaitTimeInMinutes
-        });
-    }).catch(err => {
-        console.log(err);
-        //const currentPosition = 3;
-        const currentPosition = position;
-        const estimatedWaitTime = "Unknown";
-        res.render("status.hbs", {
+          res.render("status.hbs", {
+              "stylesheet": "status",
+              "pageName": "Status",
+              "current_position": currentPosition,
+              "estimated_wait_time": estimatedWaitTimeInMinutes
+            });
+        }).catch(err => {
+            console.log(err);
+          //const currentPosition = 3;
+          const currentPosition = position;
+          const estimatedWaitTime = "Unknown";
+          res.render("status.hbs", {
             "stylesheet": "status",
             "pageName": "Status",
             "current_position": currentPosition,
             "estimated_wait_time": estimatedWaitTime
+          });
         });
-    });
+    })
 });
 
 app.get('/restaurant_login', (req, res) => {
@@ -167,23 +180,33 @@ app.get("/dashboard/:restaurant_id", (req, res) => {
           queue.unshift({"restaurantID": restaurantID, "eventID": event1, "position": position + 1, "partyName": name1, "partySize": size1});
         }
       }
-      //console.log(result);
-    });
-    // TODO: Push each row from the Redis table into "queue", matching the structure of the placeholder
-    //queue.push({"restaurantID": restaurantID, "eventID": 40, "position": 1, "partyName": "Mason", "partySize": 4}); //placeholder
 
-    res.render("dashboard.hbs", {
+      res.render("dashboard.hbs", {
         "stylesheet": "dashboard",
         "pageName": "Dashboard",
         "queue": queue
+      });
     });
 })
 
 app.post("/serve_from_queue/:restaurant_id/:event_id", (req, res) => {
     const restaurantID = req.params.restaurant_id;
     const eventID = req.params.event_id;
-    // TODO: Send an alert to the user
-    // TODO: Remove the event from Redis table
+    const restaurant = restaurantID === "la_ratatouille" ? "La Ratatouille" : "Jack Rabbit Slims";
+
+    client.lrange('helloworld', 0, -1, function (error, events) {
+        for (let i = 0; i < events.length; i++) {
+            const [curEventID, curRestaurantID, firstName, lastName, partySize, phoneNumber] = events[i].split(",");
+            if (curEventID === eventID) {
+                twilio.messages.create({
+                    body: `Hey ${firstName}, a table is now ready for you at ${restaurant}! Thank you for using LiveQ!`,
+                    from: "+18627019037",
+                    to: `+1${phoneNumber}`
+                }).done();
+            }
+        }
+
+    });
 
     client.lrange('helloworld',0, -1, function(err, result) {
       console.log("result: " + result);
@@ -193,17 +216,17 @@ app.post("/serve_from_queue/:restaurant_id/:event_id", (req, res) => {
           client.lrem('helloworld', i, result[i]);
         }
       }
-    });
 
-    psql_communicator.logServe({
+      psql_communicator.logServe({
         event_id: eventID
-    }).then(function(eventUpdated) {
-        eventUpdated ? console.log("Serve time logged!") : console.log("Event ID not found.");
-    }).catch(function(err) {
-        console.log(err);
-    });
+        }).then(function(eventUpdated) {
+            eventUpdated ? console.log("Serve time logged!") : console.log("Event ID not found.");
+        }).catch(function(err) {
+            console.log(err);
+        });
 
-    res.redirect(`/dashboard/${restaurantID}`);
+        res.redirect(`/dashboard/${restaurantID}`);
+    });
 });
 
 app.post("/remove_from_queue/:restaurant_id/:event_id", (req, res) => {
@@ -218,9 +241,8 @@ app.post("/remove_from_queue/:restaurant_id/:event_id", (req, res) => {
           client.lrem('helloworld', i, result[i]);
         }
       }
-    });
 
-    psql_communicator.removeEvent({
+      psql_communicator.removeEvent({
         event_id: eventID
     }).then(function(eventRemoved) {
         eventRemoved ? console.log("Event removed") : console.log("Event ID not found.");
@@ -229,6 +251,7 @@ app.post("/remove_from_queue/:restaurant_id/:event_id", (req, res) => {
     })
 
     res.redirect(`/dashboard/${restaurantID}`);
+    });
 });
 
 app.listen(process.env.PORT || 3000);
