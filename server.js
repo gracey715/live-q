@@ -72,18 +72,18 @@ app.post('/check-in/:restaurant_id', (req, res) => {
         // TODO: Add the event to the Redis table
         const cliObj = eventID + "," + restaurantID + "," + firstName + "," + lastName + "," + partySize + "," + phoneNumber + "";
         const eventrest = eventID + "," + restaurantID + "";
-        queue.push(cliObj);
-
+	
         client.lpush('helloworld', cliObj);
         client.lrange('helloworld', 0, -1, function(err, reply) {
-          //console.log(reply);
+          //console.log(reply.toString());
         });
 
-        res.redirect(`/${restaurantID}/status/${eventID}`);
+       res.redirect(`/${restaurantID}/status/${eventID}`);
     }).catch(function(err) {
         console.log(err);
-        res.redirect(`/check-in/${restaurantID}`);
-    });
+        res.redirect(`/check-in/${eventID}`);
+   //res.redirect('/');
+	 });
 });
 
 app.get('/:restaurant_id/status/:event_id', (req, res) => {
@@ -100,9 +100,11 @@ app.get('/:restaurant_id/status/:event_id', (req, res) => {
       }
       let resID = '';
       let objs = [];
+     // result = result.toString();
       for(let i = 0; i < result.length; i++){
-        let resultarray = result[i].split(',');
-        if(resultarray[0] == eventID){
+//	let resultarray = result[i].split(',');
+  	  let resultarray = result[i].toString().split(',');
+	  if(parseInt(resultarray[0]) == eventID){
           resID = resultarray[1];
           //count = count + 1;
           break;
@@ -175,9 +177,9 @@ app.get("/dashboard/:restaurant_id", (req, res) => {
     client.lrange('helloworld', 0, -1, function (error, result) {
       let position = result.length;
       for(let i = 0; i < result.length; i++){
-        let resultarray = result[i].split(',');
+        let resultarray = result[i].toString().split(',');
         if(resultarray[1] == restaurantID){
-        //console.log(resultarray);
+          console.log(resultarray);
           let event1 = resultarray[0];
         //console.log(event1);
           position = position - 1;
@@ -203,7 +205,7 @@ app.post("/serve_from_queue/:restaurant_id/:event_id", (req, res) => {
 
     client.lrange('helloworld', 0, -1, function (error, events) {
         for (let i = 0; i < events.length; i++) {
-            const [curEventID, curRestaurantID, firstName, lastName, partySize, phoneNumber] = events[i].split(",");
+            const [curEventID, curRestaurantID, firstName, lastName, partySize, phoneNumber] = events[i].toString().split(",");
             if (curEventID === eventID) {
                 twilio.messages.create({
                     body: `Hey ${firstName}, a table is now ready for you at ${restaurant}! Thank you for using LiveQ!`,
@@ -218,7 +220,7 @@ app.post("/serve_from_queue/:restaurant_id/:event_id", (req, res) => {
     client.lrange('helloworld',0, -1, function(err, result) {
       console.log("result: " + result);
       for(let i = 0; i < result.length; i++){
-        let resultarray = result[i].split(',');
+        let resultarray = result[i].toString().split(',');
         if(resultarray[0] == eventID){
           client.lrem('helloworld', i, result[i]);
         }
@@ -243,7 +245,7 @@ app.post("/remove_from_queue/:restaurant_id/:event_id", (req, res) => {
     client.lrange('helloworld', 0, -1, function(err, result) {
       console.log(result);
       for(let i = 0; i < result.length; i++){
-        let resultarray = result[i].split(',');
+        let resultarray = result[i].toString().split(',');
         if(resultarray[0] == eventID){
           client.lrem('helloworld', i, result[i]);
         }
